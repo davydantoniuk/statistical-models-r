@@ -1,0 +1,149 @@
+---
+title: "lab1"
+author: "Antoniuk Davyd"
+date: "2024-10-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(PerformanceAnalytics)
+
+```
+
+
+```{r}
+ryba <- read.csv("Fish.csv")
+```
+
+Zadanie 1.1 Sprawdż czy w danych są wartości brakujące, a następnie wycnacz podstawowe statystyki opisowe
+
+```{r}
+sum(is.na(ryba))
+```
+```{r}
+summary(ryba)
+```
+
+```{r}
+df <- ryba %>% 
+  select(2:7)
+st_op <- apply(df,2,summmary)
+st_op <- rbind(st_op,St.dev=apply(df,2,sd))
+as.data.frame(round(st_op,2)) %>% 
+  kable()
+```
+
+
+```{r}
+length(which(ryba==0))
+```
+```{r}
+filter(ryba,Weight==0)
+```
+
+```{r}
+ryba1 <- filter(ryba,ryba$Weight!=0)[-1]
+length(which(ryba1 == 0))
+```
+```{r}
+chart.Correlation(ryba1)
+```
+#Linia dopasowania metodą MNK
+
+Zmienne nie mogą byc między sobą liniowo zależne
+Gwiazdki - wykonany test 
+H_0 wspolczynnik korelacji jest równy zero
+Zostal wykonany test z hipotezą zerową wsp.korelacji równy zero
+Ponieważ są trzy gwiazdki to p wartość mniejsza od 0.05 a więc hipotezę zerową odrzucamy.
+
+```{r}
+library(GGally)
+ggpairs(ryba1)
+
+```
+
+Wnioski 
+
+
+Zadamie 1.2 Naszkicuj wykresy zależności zmiennych 'Length1', 'Length2', 'Length3'(6 wykresów)
+
+```{r}
+ryba1 <- read.csv("Fish.csv")
+
+# Plot Length1 vs Length2
+plot(ryba1$Length1, ryba1$Length2, 
+     main = "Length2 vs Length1", 
+     xlab = "Length1", ylab = "Length2",
+     col = "blue", pch = 19)
+
+# Plot Length1 vs Length3
+plot(ryba1$Length1, ryba1$Length3, 
+     main = "Length3 vs Length1", 
+     xlab = "Length1", ylab = "Length3",
+     col = "green", pch = 19)
+
+# Plot Length2 vs Length3
+plot(ryba1$Length2, ryba1$Length3, 
+     main = "Length3 vs Length2", 
+     xlab = "Length2", ylab = "Length3",
+     col = "red", pch = 19)
+
+# Plot Width vs Length1
+plot(ryba1$Length1, ryba1$Weight, 
+     main = "Width vs Length1", 
+     xlab = "Length1", ylab = "Weight",
+     col = "purple", pch = 19)
+
+# Plot Width vs Length2
+plot(ryba1$Length2, ryba1$Weight, 
+     main = "Width vs Length2", 
+     xlab = "Length2", ylab = "Weight",
+     col = "orange", pch = 19)
+
+# Plot Width vs Length3
+plot(ryba1$Length3, ryba1$Weight, 
+     main = "Width vs Length3", 
+     xlab = "Length3", ylab = "Weight",
+     col = "brown", pch = 19)
+
+plot(ryba1$Weight, ryba1$Weight, 
+     main = "Width vs Weight", 
+     xlab = "Weight", ylab = "Weight",
+     col = "pink", pch = 19)
+
+plot(ryba1$Height, ryba1$Weight, 
+     main = "Width vs Length3", 
+     xlab = "Height", ylab = "Weight",
+     col = "green", pch = 19)
+
+```
+
+Zadanie 1.4 Zbuduj model zależności Weight od pozostałych zmiennych pomijając 
+A)
+```{r}
+model1 <- summary(lm(ryba1$Weight~ryba1$Length1+ryba1$Height+ryba1$Width))
+model2 <- summary(lm(ryba1$Weight~ryba1$Length2+ryba1$Height+ryba1$Width))
+model3 <- summary(lm(ryba1$Weight~ryba1$Length3+ryba1$Height+ryba1$Width))
+```
+
+```{r}
+model1
+```
+```{r}
+model2
+```
+```{r}
+#library(stargazer)
+model3
+```
+
+```{r}
+
+```
+
