@@ -1,0 +1,100 @@
+---
+title: "lab2"
+author: "Antoniuk Davyd"
+date: "2024-10-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+ZADANIE 2.1. Korzystając z danych zawartych w zbiorze Fish.csv zbuduj model liniowy zależności wagi
+ryby od jej wymiarów włączając do modelu wszystkie pozostałe zmienne za wyjątkiem zmiennej Species.
+Następnie wykonaj poniższe polecenia i
+(A) Wykonując odpowiednie testy zbadaj, czy zostało naruszone założenie dotyczące normalności błędów.
+(B) Wykonaj wykresy diagnostyczne i na ich podstawie sformułuj wnioski dotyczące naruszenia założeń
+modelu KNMRL.
+(C) Na podstawie wykresów diagnostycznych określ, czy w badanym zbiorze znajdują się obserwacje nietypowe.
+(D) Zbuduj model bez obserwacji nietypowych i na podstawie wykresów diagnostycznych określ czy zostały
+naruszone założenia modelu
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(stats)
+library(olsrr)
+library(ggfortify)
+library(graphics)
+```
+
+```{r}
+fish <- read.csv("Fish.csv")
+model <- lm(Weight ~ Length1 + Length2 + Length3 + Height + Width, data = fish)
+summary(model)
+```
+
+(A)
+```{r}
+#Reszty to różnice między wartościami rzeczywistymi a przewidywanymi przez model.
+ols_test_normality(model)
+shapiro.test(residuals(model))
+```
+p-wartość jest mniejsza od 0.05, odrzucamy hipotezę zerową, co oznacza, że zostalo naruszone założenie dotyczące normalności błędów.
+
+(B)
+```{r}
+plot(model, which = 1:6)  
+
+# ggfortify::autoplot(model, which = 1:6) 
+```
+1 wykres: Residuals vs Fitted
+#Referencyjna linia czerwona na wykresie zależności reszt od wartości dopasowanych nie jest pozioma, co sugeruje że w modelu zostało naruszone założenie dotyczące liniowości.Ponadto można przypuściać że zalożenia dotyczące jednorodności wariancji też jest naruszone a bowiem punkty wykresu nie tworzą niejednorodnej chmury, ukladają się tworząc ksztalt paraboli.Dodatkowo widzimy że na wykresie zostaly wyróżnione obserwacje o numerach(143,144,145).Co może oznaczać że są one nietypowe
+
+2 wykres: Normal Q-Q
+#Na wykresie kwantylowym widzimy że punkty ukladają sie wzdluż linii referencyjnej, co sugeruje że reszty są rozkładane normalnie.
+
+3 wykres: Scale-Location
+#Na wykresie zależności pierwiastka z reszt od wartości dopasowanych nie widać żadnego wzorca, co sugeruje że w modelu zostało naruszone założenie dotyczące homoskedastyczności.
+
+#4 wykres: Cook's distance
+#Na wykresie Cooka widzimy że obserwacje o numerach 142,143,144 są nietypowe.A bowiem że ponieważ róznica ich w odłeglości Cooka jest duża
+
+#5 wykres: Residuals vs Leverage
+diagnostyka obserwacji wpływowych
+#Na wykresie reszty vs wpływ można zauważyć że obserwacje o numerach 143,144,145, mają większe dżwignie i standaryzowane reszty niż pozostale obserwacje.
+
+#6 wykres: 
+Czarne linie - sektory dla standaryzowanych reszt
+
+Ustalmy że to będą obserwację które wplywają żle ponieważ oni mają duże dżwigni i standaryzacje Cooka
+Obliczymy dffeats i dfperformance
+(C)
+```{r}
+#Nie wolno kolokwium
+library(performance)
+diag <- plot(model,panel = F)
+```
+```{r}
+diag[[1]]
+```
+
+```{r}
+diag[[2]]
+```
+
+```{r}
+ols_plot_resid_lev(model)
+```
+Wykres zależności studentyzowanych reszt.
+
+```{r}
+fish1 <- fish[-c(143,144,145),]
+model <- lm(Weight ~ Length1 + Length2 + Length3 + Height + Width, data = fish1)
+summary(model)
+
+```
+
+Wirkszość wspólczynników staly statystycznie istotnymi(patrzyć na gwiazdki)
